@@ -76,7 +76,6 @@ class Email:
         file = os.path.join("../template", file_name)
         with open(file, "r", encoding="utf-8") as f:
             html = f.read()
-        print(html)
         content = ""
         if body_dict.get("project", ""):
             content += body_dict.get("project", "")
@@ -105,7 +104,7 @@ class Email:
 
 
 if __name__ == "__main__":
-    receiver_list_ = ["kyrie.lu@littlefreddie.com"]
+    receiver_list_ = ["kyrie.lu@littlefreddie.com", "lucaibao1128@163.com"]
     subject_ = "测试邮件发送"
     body_dict_ = {"project": "主数据项目", "module": "数据分析模块", "msg": "分析数据异常"}
     cate_ = "info"

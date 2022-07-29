@@ -30,7 +30,7 @@ class Email:
         :param cate: 邮件分类(error异常、warning告警、info通知)
         """
         if cate not in self.cate_list:
-            return "请选择告警类型--error,warning或者info"
+            cate = "warning"
 
         # 处理邮件信息
         content = self.handle_body(body_dict, cate)

@@ -10,13 +10,18 @@
 
 #### 3、目录结构说明
 ```
+|—— api                     // api接口
 |—— conf                    // 项目所需的配置文件
-|   └─— setting.py          // 配置文件
+|   |—— mail_cfg.py         // 邮件配置信息
+|   └─— setting.py          // 配置信息
 |—— db                      // 数据库相关文件，主要和数据库交互
 |   └─ models.py            // 数据库模型类
 |—— logs                    // 项目产生的日志文件
 |—— docs                    // 项目相关的文档
+|—— template                // 模板文件
 |—— utils                   // 工具相关
+|   |—— db.py               // 数据库连接对象
+|   └─— mail.py             // 邮件发送器
 |—— index.py                // 函数FC执行入口
 |—— readme.md               // readme
 └─requirements.txt          // 第三方依赖库

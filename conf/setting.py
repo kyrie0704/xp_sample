@@ -37,7 +37,6 @@ class ProductConfig(Config):
     pool_size = 30
     # 连接池回收时间
     pool_recycle = 3600
-    edwin_test_recycle = 3600
 
 
 class TestConfig(Config):

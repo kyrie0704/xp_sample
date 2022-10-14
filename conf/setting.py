@@ -47,7 +47,7 @@ class TestConfig(Config):
     pool_size = 30
     # 连接池回收时间
     pool_recycle = 3600
-    edwin_pool_recycle = 6400
+    edwin_test = 'testtesttesttest'
 
 
 if debug:

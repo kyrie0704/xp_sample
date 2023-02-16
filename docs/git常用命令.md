@@ -88,3 +88,19 @@ build：影响构建系统或外部依赖项的更改（示例范围：gulp、br
 ci：对我们的 CI 配置文件和脚本的更改（示例范围：Travis、Circle、BrowserStack、SauceLabs）
 ```
 
+四、git常用撤销命令
+
+```
+1、撤销add操作
+恢复到上次add操作之前：git reset HEAD
+仅恢复某个文件：git reset HEAD 文件名
+
+2、撤销commit操作
+不删除工作空间改动代码，撤销commit，并且撤销add操作：git reset HEAD^
+不删除工作空间改动代码，撤销commit，不撤销add操作：git reset --soft HEAD^
+删除工作空间改动代码，撤销commit，撤销add操作： git reset --hard HEAD^
+
+3、撤销上次git操作
+比如使用了git reset --hard HEAD^命令，将改动的代码也删除了，需要恢复改动的代码，可以先使用git log查看操作记录，然后使用git reset commit_id回滚到对应节点
+```
+

@@ -38,6 +38,9 @@ $ git reset --hard 版本号
 只做了add操作，还没执行commit的回退(回退到当前版本)
 $ git reset HEAD
 
+回退本地最近一次提交
+ $ git reset --soft HEAD~1
+
 回退到当前版本后，继续把文件还原
 $ git checkout <file>
 ```
@@ -66,6 +69,9 @@ git checkout -- file
 
 7、删除远程分支
 git push origin --delete dev
+
+8、将代码提交到远程分支
+git push -u origin 远程仓库分支名
 ```
 
 #### 三、git提交规范
@@ -88,7 +94,7 @@ build：影响构建系统或外部依赖项的更改（示例范围：gulp、br
 ci：对我们的 CI 配置文件和脚本的更改（示例范围：Travis、Circle、BrowserStack、SauceLabs）
 ```
 
-四、git常用撤销命令
+#### 四、git常用撤销命令
 
 ```
 1、撤销add操作
@@ -102,5 +108,20 @@ ci：对我们的 CI 配置文件和脚本的更改（示例范围：Travis、Ci
 
 3、撤销上次git操作
 比如使用了git reset --hard HEAD^命令，将改动的代码也删除了，需要恢复改动的代码，可以先使用git log查看操作记录，然后使用git reset commit_id回滚到对应节点
+```
+#### 五、远程仓库
+
+```
+1、添加远程仓库
+git remote add origin(远程仓库名称) 远程仓库地址
+
+2、删除远程仓库连接
+git remote rm origin(远程仓库名称)
+
+3、更改远程仓库连接
+git remote set-url origin(远程仓库名称) 远程仓库地址
+
+4、修改远程仓库名称（也可以先删除再添加）
+git remote rename <old-remote-name> <new-remote-name>
 ```
 

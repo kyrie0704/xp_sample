@@ -37,20 +37,7 @@ class ProductConfig(Config):
     pool_size = 30
     # 连接池回收时间
     pool_recycle = 3600
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
-    a = 1
+
 
 class TestConfig(Config):
     """测试环境"""
@@ -60,7 +47,9 @@ class TestConfig(Config):
     pool_size = 30
     # 连接池回收时间
     pool_recycle = 3600
-    edwin_test = 'testtesttesttest'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_RECORD_QUERIES = True
+    SQLALCHEMY_DATABASE_URI = "mysql://root:test123@127.0.0.1:3307/test_db?charset=utf8mb4"
 
 
 if debug:

@@ -20,10 +20,9 @@ class AliyunOss:
         self._bucket = oss2.Bucket(self._auth, self._endpoint, self._bucket)
         # 文件前缀
         if prefix:
-            if not prefix.endswith("/"):
-                self._prefix = prefix + "/"
-            else:
-                self._prefix = prefix
+            self._prefix = prefix
+        else:
+            self._prefix = prefix
 
     def get_bucket_info(self):
         """
@@ -58,7 +57,8 @@ class AliyunOss:
             prefix = self._prefix
         key = prefix + remote_file
         print(key)
-        return self._bucket.put_object(key=key, data=data)
+        resp = self._bucket.put_object(key=key, data=data)
+        return resp.status
 
     def resumable_upload(self, local_file, remote_file=None):
         """
@@ -77,7 +77,7 @@ class AliyunOss:
         :param remote_file: 上传到用户空间的文件名
         """
         if remote_file is None:
-            filename = local_file.split("/")[-1]
+            filename = local_file.split(os.sep)[-1]
             remote_file = self._prefix + filename
         return oss2.resumable_upload(self._bucket, remote_file, local_file, multipart_threshold=100*1024)
 
@@ -85,12 +85,12 @@ class AliyunOss:
         """
         分片上传（较大文件需要使用分片上传）
         :param local_file: 待上传本地文件名
-        :param remote_file: 上传的文件名(默认和本地文件同名)
+        :param remote_file: 上传的文件名
         :param remove: 是否删除本地文件
         """
         if remote_file is None:
-            filename = local_file.split("/")[-1]
-            remote_file = self._prefix + filename
+            filename = local_file.split(os.sep)[-1]
+            remote_file = self._prefix + "/" + filename
         # 设定分片大小，设我们期望的分片大小为128KB
         total_size = os.path.getsize(local_file)
         part_size = oss2.determine_part_size(total_size, preferred_size=128 * 1024)
@@ -113,12 +113,12 @@ class AliyunOss:
         if remove:
             os.remove(local_file)
 
-    def download(self, remote_file, local_path, filename=None):
+    def get_object_to_file(self, remote_file, local_path, filename=None):
         """
         下载oss文件到本地
         :param remote_file: 远程文件名
         :param local_path: 本地存储路径
-        :param filename: 本地文件名(不传则默认和远程文件同名)
+        :param filename: 本地文件名
         """
         if filename is None:
             filename = remote_file.split("/")[-1]
@@ -129,17 +129,16 @@ class AliyunOss:
 
     def put_object_from_file(self, local_file, remote_file=None):
         """
-        将本地文件上传到oss(直接输入本地文件名)
+        将本地文件上传到oss
         :param local_file: 本地文件名
-        :param remote_file: 远程文件名(默认和本地文件同名)
+        :param remote_file: 远程文件名
         """
         if remote_file is None:
-            filename = local_file.split("/")[-1]
+            filename = local_file.split(os.sep)[-1]
             remote_file = self._prefix + filename
-        print(remote_file)
         return self._bucket.put_object_from_file(remote_file, local_file)
 
-    def delete(self, filename):
+    def delete_file(self, filename):
         """
         删除文件
         """
@@ -161,7 +160,3 @@ if __name__ == "__main__":
     prefix_ = 'devops/'
     oss_obj = AliyunOss(access_key_id_, access_key_secret_, endpoint_, bucket_, prefix_)
     # res = oss_obj.get_file_list()
-    # res = oss_obj.put_object_from_file(file)
-    file = "devops/git常用命令.md"
-    res = oss_obj.delete(file)
-    print(res.status)

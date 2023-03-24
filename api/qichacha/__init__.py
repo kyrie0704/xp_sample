@@ -7,5 +7,5 @@
 @Email   :  Kyrie.Lu@littlefreddie.com
 @Version :  1.0
 @License :  (C)Copyright 2021-2022
-@Desc    :  None
+@Desc    :  企查查API
 """

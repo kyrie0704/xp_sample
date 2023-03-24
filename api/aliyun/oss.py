@@ -1,8 +1,14 @@
+# !/usr/bin/python
 # -*- coding: utf-8 -*-
-# @Author: Kyrie
-# @Email: Kyrie.Lu@littlefreddie.com
-# @Time: 2022/8/3 11:28
-# @Desc: 阿里云oss模块封装
+"""
+@File    :  oss.py
+@Time    :  2023/3/23 13:37
+@Author  :  Kyrie
+@Email   :  Kyrie.Lu@littlefreddie.com
+@Version :  1.0
+@License :  (C)Copyright 2021-2022
+@Desc    :  阿里云oss模块封装
+"""
 import os
 import shutil
 
@@ -19,10 +25,7 @@ class AliyunOss:
         # 创建bucket对象
         self._bucket = oss2.Bucket(self._auth, self._endpoint, self._bucket)
         # 文件前缀
-        if prefix:
-            self._prefix = prefix
-        else:
-            self._prefix = prefix
+        self._prefix = prefix
 
     def get_bucket_info(self):
         """
@@ -46,7 +49,21 @@ class AliyunOss:
                 file_list.append(filename)
         return file_list
 
-    def upload(self, remote_file, data, prefix=None):
+    def upload_file(self, local_file, remote_file=None):
+        """
+        将本地文件上传到oss
+        :param local_file: 本地文件名
+        :param remote_file: 远程文件名
+        """
+        if remote_file is None:
+            filename = local_file.split(os.sep)[-1]
+            remote_file = self._prefix + filename
+        resp = self._bucket.put_object_from_file(remote_file, local_file)
+        if str(resp.status) == "200":
+            return True
+        return False
+
+    def upload_file_object(self, remote_file, data, prefix=None):
         """
         文件上传
         :param remote_file: 上传到OSS的文件名
@@ -55,10 +72,14 @@ class AliyunOss:
         """
         if prefix is None:
             prefix = self._prefix
+            if not prefix.endswith("/"):
+                prefix += "/"
         key = prefix + remote_file
         print(key)
         resp = self._bucket.put_object(key=key, data=data)
-        return resp.status
+        if str(resp.status) == "200":
+            return True
+        return False
 
     def resumable_upload(self, local_file, remote_file=None):
         """
@@ -79,7 +100,10 @@ class AliyunOss:
         if remote_file is None:
             filename = local_file.split(os.sep)[-1]
             remote_file = self._prefix + filename
-        return oss2.resumable_upload(self._bucket, remote_file, local_file, multipart_threshold=100*1024)
+        resp = oss2.resumable_upload(self._bucket, remote_file, local_file, multipart_threshold=100*1024)
+        if str(resp.status) == "200":
+            return True
+        return False
 
     def multipart_upload(self, local_file, remote_file=None, remove=False):
         """
@@ -120,43 +144,44 @@ class AliyunOss:
         :param local_path: 本地存储路径
         :param filename: 本地文件名
         """
-        if filename is None:
-            filename = remote_file.split("/")[-1]
-        local_file = os.path.join(local_path, filename)
-        # 因为get_object()方法返回的是一个file-like object，所以可以直接用shutil.copyfileobj()做拷贝
-        with open(oss2.to_unicode(local_file), 'wb') as f:
-            shutil.copyfileobj(self._bucket.get_object(remote_file), f)
-
-    def put_object_from_file(self, local_file, remote_file=None):
-        """
-        将本地文件上传到oss
-        :param local_file: 本地文件名
-        :param remote_file: 远程文件名
-        """
-        if remote_file is None:
-            filename = local_file.split(os.sep)[-1]
-            remote_file = self._prefix + filename
-        return self._bucket.put_object_from_file(remote_file, local_file)
+        try:
+            if filename is None:
+                filename = remote_file.split("/")[-1]
+            local_file = os.path.join(local_path, filename)
+            # 因为get_object()方法返回的是一个file-like object，所以可以直接用shutil.copyfileobj()做拷贝
+            with open(oss2.to_unicode(local_file), 'wb') as f:
+                shutil.copyfileobj(self._bucket.get_object(remote_file), f)
+            return True
+        except Exception as e:
+            print(f"下载oss文件到本地失败，error:{e}")
+            return False
 
     def delete_file(self, filename):
         """
         删除文件
         """
-        return self._bucket.delete_object(filename)
+        resp = self._bucket.delete_object(filename)
+        if str(resp.status) == "204":
+            return True
+        return False
 
     def batch_delete(self, filename_list):
         """
         批量删除文件
         :param filename_list: 文件名列表，不能为空 eg:[file1, file2, file3...]
         """
-        return self._bucket.batch_delete_objects(filename_list)
+        resp = self._bucket.batch_delete_objects(filename_list)
+        if str(resp.status) == "200":
+            return True
+        return False
 
 
 if __name__ == "__main__":
-    access_key_id_ = ""
-    access_key_secret_ = ""
+    access_key_id_ = "xxx"
+    access_key_secret_ = "xxx"
     endpoint_ = "oss-cn-shenzhen.aliyuncs.com"
     bucket_ = "lf-online-test"
-    prefix_ = 'devops/'
-    oss_obj = AliyunOss(access_key_id_, access_key_secret_, endpoint_, bucket_, prefix_)
-    # res = oss_obj.get_file_list()
+    prefix_ = 'devops'
+    oss_obj = AliyunOss(access_key_id_, access_key_secret_, endpoint_, bucket_, prefix=prefix_)
+    res = oss_obj.get_file_list()
+    print(res)

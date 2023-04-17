@@ -16,7 +16,7 @@ import oss2
 
 
 class AliyunOss:
-    def __init__(self, access_key_id, access_key_secret, endpoint, bucket, prefix=''):
+    def __init__(self, access_key_id, access_key_secret, endpoint, bucket):
         self._access_key_id = access_key_id
         self._access_key_secret = access_key_secret
         self._endpoint = endpoint
@@ -24,8 +24,6 @@ class AliyunOss:
         self._auth = oss2.Auth(self._access_key_id, self._access_key_secret)
         # 创建bucket对象
         self._bucket = oss2.Bucket(self._auth, self._endpoint, self._bucket)
-        # 文件前缀
-        self._prefix = prefix
 
     def get_bucket_info(self):
         """
@@ -33,20 +31,14 @@ class AliyunOss:
         """
         return self._bucket.get_bucket_info()
 
-    def get_file_list(self, prefix=True):
+    def get_file_list(self, prefix=""):
         """
         获取oss上面所有文件
-        :param prefix: 是否需要前缀
+        :param prefix: 文件前缀
         """
         file_list = []
-        for obj in oss2.ObjectIterator(bucket=self._bucket, prefix=self._prefix):
-            if prefix:
-                file_list.append(obj.key)
-            else:
-                filename = obj.key.split("/")[-1]
-                if not filename:
-                    continue
-                file_list.append(filename)
+        for obj in oss2.ObjectIterator(bucket=self._bucket, prefix=prefix):
+            file_list.append(obj.key)
         return file_list
 
     def upload_file(self, local_file, remote_file=None):
@@ -55,9 +47,6 @@ class AliyunOss:
         :param local_file: 本地文件名
         :param remote_file: 远程文件名
         """
-        if remote_file is None:
-            filename = local_file.split(os.sep)[-1]
-            remote_file = self._prefix + filename
         resp = self._bucket.put_object_from_file(remote_file, local_file)
         if str(resp.status) == "200":
             return True
@@ -70,12 +59,7 @@ class AliyunOss:
         :param data: 待上传的内容。 bytes，str或file-like object
         :param prefix: 存放路径
         """
-        if prefix is None:
-            prefix = self._prefix
-            if not prefix.endswith("/"):
-                prefix += "/"
         key = prefix + remote_file
-        print(key)
         resp = self._bucket.put_object(key=key, data=data)
         if str(resp.status) == "200":
             return True
@@ -97,9 +81,6 @@ class AliyunOss:
         :param local_file: 待上传本地文件名
         :param remote_file: 上传到用户空间的文件名
         """
-        if remote_file is None:
-            filename = local_file.split(os.sep)[-1]
-            remote_file = self._prefix + filename
         resp = oss2.resumable_upload(self._bucket, remote_file, local_file, multipart_threshold=100*1024)
         if str(resp.status) == "200":
             return True
@@ -112,9 +93,6 @@ class AliyunOss:
         :param remote_file: 上传的文件名
         :param remove: 是否删除本地文件
         """
-        if remote_file is None:
-            filename = local_file.split(os.sep)[-1]
-            remote_file = self._prefix + "/" + filename
         # 设定分片大小，设我们期望的分片大小为128KB
         total_size = os.path.getsize(local_file)
         part_size = oss2.determine_part_size(total_size, preferred_size=128 * 1024)
@@ -193,7 +171,6 @@ if __name__ == "__main__":
     access_key_secret_ = "xxx"
     endpoint_ = "oss-cn-shenzhen.aliyuncs.com"
     bucket_ = "lf-online-test"
-    prefix_ = 'devops'
-    oss_obj = AliyunOss(access_key_id_, access_key_secret_, endpoint_, bucket_, prefix=prefix_)
-    res = oss_obj.get_file_list()
+    oss_obj = AliyunOss(access_key_id_, access_key_secret_, endpoint=endpoint_, bucket=bucket_)
+    res = oss_obj.get_file_list(prefix="devops/")
     print(res)

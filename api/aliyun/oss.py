@@ -37,7 +37,8 @@ class AliyunOss:
         :param prefix: 文件前缀
         """
         file_list = []
-        for obj in oss2.ObjectIterator(bucket=self._bucket, prefix=prefix):
+        # 移除最外层目录；start_after 起始文件名称，OSS会按照文件的字典序排列返回start_after之后的文件
+        for obj in oss2.ObjectIteratorV2(bucket=self._bucket, prefix=prefix, start_after=prefix):
             file_list.append(obj.key)
         return file_list
 

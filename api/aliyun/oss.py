@@ -140,12 +140,17 @@ class AliyunOss:
         获取oss文件的文件流
         :param remote_file: 远程文件名
         """
-        try:
-            # get_object()方法返回的是一个file-like object，使用read方式读取出文件流
-            return self._bucket.get_object(remote_file).read()
-        except Exception as e:
-            print(f"获取oss文件的文件流失败，error:{e}")
-            return False
+        max_retries = 3
+        count = 0
+        while True:
+            try:
+                # get_object()方法返回的是一个file-like object，使用read方式读取出文件流
+                file_obj = self._bucket.get_object(remote_file).read()
+                return file_obj
+            except Exception as e:
+                if count >= max_retries:
+                    print(f"获取oss文件的文件流失败，error:{e}")
+                    return False
 
     def delete_file(self, filename):
         """

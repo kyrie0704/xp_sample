@@ -151,6 +151,7 @@ class AliyunOss:
                 if count >= max_retries:
                     print(f"获取oss文件的文件流失败，error:{e}")
                     return False
+                count += 1
 
     def delete_file(self, filename):
         """

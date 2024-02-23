@@ -17,6 +17,7 @@ from conf.mail_cfg import mail_config, cate_list
 class Email:
     def __init__(self):
         self.host = mail_config.get("host")
+        self.port = mail_config.get("port")
         self.sender = mail_config.get("sender")
         self.mail_license = mail_config.get("license")
         self.cate_list = cate_list
@@ -50,7 +51,7 @@ class Email:
         stp = None
         try:
             # 创建smtp对象
-            stp = smtplib.SMTP_SSL(self.host)
+            stp = smtplib.SMTP_SSL(self.host, self.port)
             stp.login(self.sender, self.mail_license)
             stp.sendmail(self.sender, receiver_list, mm.as_string())
             stp.quit()

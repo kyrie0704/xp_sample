@@ -14,6 +14,7 @@ outlook邮箱获取授权码  https://www.vpsss.net/28088.html
 """
 mail_config = {
     "host": "",
+    "port": 25,
     "sender": "",
     "license": ""
 }
